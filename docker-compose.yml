@@ -1,0 +1,63 @@
+services:
+  # Gateway Service
+  gateway-service:
+    build:
+      context: ./backend/gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xmx512m -Xms256m
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+    networks:
+      - trading-network
+    depends_on:
+      - auth-service
+      - market-service
+      - watchlist-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Auth Service (placeholder - to be implemented)
+  auth-service:
+    image: eclipse-temurin:21-jre-alpine
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    networks:
+      - trading-network
+    command: ["sh", "-c", "echo 'Auth service placeholder - to be implemented' && tail -f /dev/null"]
+
+  # Market Service (placeholder - to be implemented)
+  market-service:
+    image: eclipse-temurin:21-jre-alpine
+    container_name: market-service
+    ports:
+      - "8082:8082"
+    networks:
+      - trading-network
+    command: ["sh", "-c", "echo 'Market service placeholder - to be implemented' && tail -f /dev/null"]
+
+  # Watchlist Service (placeholder - to be implemented)
+  watchlist-service:
+    image: eclipse-temurin:21-jre-alpine
+    container_name: watchlist-service
+    ports:
+      - "8083:8083"
+    networks:
+      - trading-network
+    command: ["sh", "-c", "echo 'Watchlist service placeholder - to be implemented' && tail -f /dev/null"]
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  gateway-logs:
