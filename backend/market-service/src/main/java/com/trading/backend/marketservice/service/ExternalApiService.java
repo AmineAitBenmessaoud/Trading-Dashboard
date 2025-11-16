@@ -28,6 +28,7 @@ public class ExternalApiService {
                     .price(json.getDouble("05. price"))
                     .change(json.getDouble("09. change"))
                     .percentChange(Double.parseDouble(json.getString("10. change percent").replace("%", "")))
+                    .volume(json.getLong("06. volume"))
                     .timestamp(System.currentTimeMillis())
                     .build();
 
