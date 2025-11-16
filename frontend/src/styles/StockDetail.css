@@ -1,0 +1,141 @@
+.stock-detail {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.stock-header {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stock-header h1 {
+  margin: 0 0 1rem 0;
+  color: #1a1a1a;
+  font-size: 2.5rem;
+}
+
+.stock-price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1976d2;
+  margin: 0 0 1rem 0;
+}
+
+.stock-change {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stock-change.positive {
+  color: #4caf50;
+}
+
+.stock-change.negative {
+  color: #d32f2f;
+}
+
+.stock-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.stat .label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.stat .value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.period-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.period-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #666;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.period-btn:hover {
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.period-btn.active {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
+}
+
+.chart-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .stock-detail {
+    padding: 1rem;
+  }
+
+  .stock-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .stock-header h1 {
+    font-size: 2rem;
+  }
+
+  .stock-price {
+    font-size: 1.5rem;
+  }
+
+  .stock-stats {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .period-selector {
+    flex-wrap: wrap;
+  }
+
+  .period-btn {
+    flex: 1;
+    min-width: 60px;
+  }
+}
