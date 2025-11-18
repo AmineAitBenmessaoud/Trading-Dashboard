@@ -23,8 +23,18 @@ export const watchlistService = {
   },
 
   addToWatchlist: async (symbol: string): Promise<WatchlistItem> => {
-    const response = await apiClient.post('/api/watchlist/add', { symbol });
-    return response.data;
+    console.log('Adding to watchlist with symbol:', symbol);
+    const payload = { symbol: symbol.toUpperCase().trim() };
+    console.log('Request payload:', JSON.stringify(payload));
+    console.log('Request headers:', { 'Content-Type': 'application/json' });
+    try {
+      const response = await apiClient.post('/api/watchlist/add', payload);
+      console.log('Response:', response);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error adding to watchlist:', error.response?.data || error.message);
+      throw error;
+    }
   },
 
   removeFromWatchlist: async (itemId: string): Promise<void> => {

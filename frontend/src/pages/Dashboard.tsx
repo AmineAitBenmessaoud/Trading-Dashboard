@@ -81,14 +81,25 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleAddToWatchlist = async (symbol: string) => {
+    console.log('handleAddToWatchlist called with symbol:', symbol);
+    
+    // Check if symbol already exists in watchlist
+    const symbolExists = watchlist.some(item => item.symbol.toUpperCase() === symbol.toUpperCase());
+    if (symbolExists) {
+      setError(`${symbol} is already in your watchlist`);
+      return;
+    }
+    
     try {
       await watchlistService.addToWatchlist(symbol);
       setSearchResults([]);
       setSearchQuery('');
       // Refresh the watchlist with new prices
       await fetchDashboardData(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to add to watchlist:', err);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to add stock to watchlist';
+      setError(`Error adding ${symbol}: ${errorMsg}`);
     }
   };
 
@@ -133,17 +144,24 @@ export const Dashboard: React.FC = () => {
           />
           {searchResults.length > 0 && (
             <div className="search-results">
-              {searchResults.map((result) => (
-                <div key={result.symbol} className="search-result-item">
-                  <div>
-                    <strong>{result.symbol}</strong>
-                    <p>{result.name}</p>
+              {searchResults.map((result) => {
+                const isInWatchlist = watchlist.some(item => item.symbol.toUpperCase() === result.ticker.toUpperCase());
+                return (
+                  <div key={result.ticker} className="search-result-item">
+                    <div>
+                      <strong>{result.ticker}</strong>
+                      <p>{result.name}</p>
+                    </div>
+                    <button 
+                      onClick={() => handleAddToWatchlist(result.ticker)}
+                      disabled={isInWatchlist}
+                      title={isInWatchlist ? `${result.ticker} is already in your watchlist` : ''}
+                    >
+                      {isInWatchlist ? '✓ Added' : 'Add to Watchlist'}
+                    </button>
                   </div>
-                  <button onClick={() => handleAddToWatchlist(result.symbol)}>
-                    Add to Watchlist
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

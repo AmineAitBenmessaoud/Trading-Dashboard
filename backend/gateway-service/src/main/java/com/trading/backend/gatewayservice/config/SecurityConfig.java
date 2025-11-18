@@ -24,9 +24,11 @@ public class SecurityConfig {
                 .pathMatchers("/api/market/trending").permitAll()  // Allow public access to trending
                 .pathMatchers("/api/market/search").permitAll()  // Allow public access to market search
                 .pathMatchers("/api/market/data/**").permitAll()  // Allow public access to market data by symbol
+                .pathMatchers("/api/watchlist/**").authenticated()  // Require authentication for watchlist
                 .pathMatchers("/actuator/**").permitAll()
                 .anyExchange().authenticated()
             )
+            .cors(cors -> cors.disable())
             .csrf(csrf -> csrf.disable());
 
         return http.build();

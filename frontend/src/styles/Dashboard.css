@@ -137,8 +137,14 @@
   transition: background-color 0.3s ease;
 }
 
-.search-result-item button:hover {
+.search-result-item button:hover:not(:disabled) {
   background-color: #1565c0;
+}
+
+.search-result-item button:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
 .dashboard-section {
