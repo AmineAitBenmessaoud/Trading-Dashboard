@@ -6,9 +6,9 @@ A microservices-based trading dashboard application built with Spring Boot and D
 
 This project consists of multiple microservices:
 - **Gateway Service**: API Gateway for routing requests (Port 8080)
-- **Auth Service**: Authentication and authorization (Port 8081) - *To be implemented*
-- **Market Service**: Market data and trading functionality (Port 8082) - *To be implemented*
-- **Watchlist Service**: User watchlist management (Port 8083) - *To be implemented*
+- **Auth Service**: Authentication and authorization (Port 8081) 
+- **Market Service**: Market data and trading functionality (Port 8082) 
+- **Watchlist Service**: User watchlist management (Port 8083)
 
 ## Prerequisites
 
