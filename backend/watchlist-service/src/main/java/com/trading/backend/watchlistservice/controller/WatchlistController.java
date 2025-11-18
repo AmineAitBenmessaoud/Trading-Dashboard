@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/watchlist")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 public class WatchlistController {
     
     private final WatchlistService watchlistService;
