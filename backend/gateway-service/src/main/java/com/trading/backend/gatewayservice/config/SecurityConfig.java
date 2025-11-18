@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .pathMatchers("/api/market/top-movers").permitAll()  // Allow public access to top-movers
                 .pathMatchers("/api/market/trending").permitAll()  // Allow public access to trending
                 .pathMatchers("/api/market/search").permitAll()  // Allow public access to market search
+                .pathMatchers("/api/market/data/**").permitAll()  // Allow public access to market data by symbol
                 .pathMatchers("/actuator/**").permitAll()
                 .anyExchange().authenticated()
             )

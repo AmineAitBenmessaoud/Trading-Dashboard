@@ -1,5 +1,6 @@
 package com.trading.backend.watchlistservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -12,5 +13,6 @@ public class WatchlistItemDto {
     private String symbol;
     private String name;
     private double currentPrice;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
     private LocalDateTime addedAt;
 }

@@ -11,29 +11,58 @@ export const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const [movers, wl] = await Promise.all([
-          marketService.getTopMovers(),
-          watchlistService.getWatchlist(),
-        ]);
-        setTopMovers(movers);
-        setWatchlist(wl.items || []);
-      } catch (err: any) {
-        console.error('Dashboard data fetch error:', err);
-        const errorMsg = err.response?.data?.message || err.message || 'Failed to load dashboard data';
-        setError(errorMsg);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchDashboardData = async (isRefresh = false) => {
+    try {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError('');
+      
+      const [movers, wl] = await Promise.all([
+        marketService.getTopMovers(),
+        watchlistService.getWatchlist(),
+      ]);
+      setTopMovers(movers);
+      
+      // Fetch prices for watchlist items
+      const itemsWithPrices = await Promise.all(
+        (wl.items || []).map(async (item) => {
+          try {
+            const marketData = await marketService.getMarketData(item.symbol);
+            return {
+              ...item,
+              currentPrice: marketData.price || 0,
+            };
+          } catch (err) {
+            console.warn(`Failed to fetch price for ${item.symbol}:`, err);
+            return item;
+          }
+        })
+      );
+      setWatchlist(itemsWithPrices);
+      setLastUpdate(new Date());
+    } catch (err: any) {
+      console.error('Dashboard data fetch error:', err);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to load dashboard data';
+      setError(errorMsg);
+    } finally {
+      if (isRefresh) setRefreshing(false);
+      else setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchDashboardData();
+    
+    // Auto-refresh prices every 30 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData(true);
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleSearch = async (query: string) => {
@@ -54,10 +83,10 @@ export const Dashboard: React.FC = () => {
   const handleAddToWatchlist = async (symbol: string) => {
     try {
       await watchlistService.addToWatchlist(symbol);
-      const updatedWatchlist = await watchlistService.getWatchlist();
-      setWatchlist(updatedWatchlist.items || []);
       setSearchResults([]);
       setSearchQuery('');
+      // Refresh the watchlist with new prices
+      await fetchDashboardData(true);
     } catch (err) {
       console.error('Failed to add to watchlist:', err);
     }
@@ -76,6 +105,22 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
+      <div className="dashboard-header">
+        <h1>Trading Dashboard</h1>
+        <button 
+          className="refresh-btn" 
+          onClick={() => fetchDashboardData(true)}
+          disabled={refreshing}
+        >
+          {refreshing ? 'Refreshing...' : '🔄 Refresh Prices'}
+        </button>
+        {lastUpdate && (
+          <p className="last-update">
+            Last updated: {lastUpdate.toLocaleTimeString()}
+          </p>
+        )}
+      </div>
+      
       <div className="search-section">
         <h2>Search Stocks</h2>
         <div className="search-container">
@@ -130,7 +175,7 @@ export const Dashboard: React.FC = () => {
                 </div>
                 <p className="stock-name">{item.name}</p>
                 <p className="stock-price">${item.currentPrice.toFixed(2)}</p>
-                <p className="added-at">Added: {new Date(item.addedAt).toLocaleDateString()}</p>
+                <p className="added-at">Added: {new Date(item.addedAt + 'Z').toLocaleDateString()}</p>
               </div>
             ))}
           </div>

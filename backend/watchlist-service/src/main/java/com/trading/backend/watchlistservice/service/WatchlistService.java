@@ -156,7 +156,8 @@ public class WatchlistService {
         return WatchlistItemDto.builder()
                 .id(watchlist.getId().toString())
                 .symbol(watchlist.getStockSymbol())
-                .name(watchlist.getStockSymbol()) // Name will be fetched from market service
+                .name(watchlist.getStockSymbol())
+                .currentPrice(0.0) // Prices will be fetched from frontend separately
                 .addedAt(watchlist.getAddedAt())
                 .build();
     }
