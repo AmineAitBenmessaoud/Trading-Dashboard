@@ -43,16 +43,20 @@ export const useAuthStore = create<AuthState>((set) => ({
     
     if (token && userStr) {
       try {
+        const user = JSON.parse(userStr);
         set({
           token,
-          user: JSON.parse(userStr),
+          user,
           isAuthenticated: true,
         });
       } catch (error) {
         console.error('Failed to parse user data:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        set({ user: null, token: null, isAuthenticated: false });
       }
+    } else {
+      set({ user: null, token: null, isAuthenticated: false });
     }
   },
 }));

@@ -6,7 +6,6 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -20,39 +19,33 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
-        String method = exchange.getRequest().getMethod().toString();
 
-        // Skip authentication for auth endpoints and OPTIONS requests
-        if (path.startsWith("/api/auth") || "OPTIONS".equalsIgnoreCase(method)) {
+        // Skip for auth endpoints - they're handled by the gateway
+        if (path.startsWith("/api/auth") || path.startsWith("/actuator")) {
             return chain.filter(exchange);
         }
 
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            
+            if (jwtUtil.validateToken(token)) {
+                String username = jwtUtil.extractUsername(token);
+                // Add username as a header for downstream services
+                ServerWebExchange modifiedExchange = exchange.mutate()
+                    .request(r -> r.headers(h -> h.add("X-User-Name", username)))
+                    .build();
+                return chain.filter(modifiedExchange);
+            }
         }
 
-        String token = authHeader.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
-
-        // Optionally add username as a header for downstream services
-        String username = jwtUtil.extractUsername(token);
-        ServerWebExchange modifiedExchange = exchange.mutate()
-                .request(r -> r.headers(h -> h.add("X-User-Name", username)))
-                .build();
-
-        return chain.filter(modifiedExchange);
+        return chain.filter(exchange);
     }
 
     @Override
     public int getOrder() {
-        return -1;
+        return -2;
     }
 }

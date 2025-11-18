@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 
@@ -28,8 +29,18 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      console.error('401 Unauthorized - logging out');
+      // Clear auth store
+      const logout = useAuthStore.getState().logout;
+      logout();
+      // Redirect to login only if not already there
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    } else if (error.response?.status === 403) {
+      console.error('403 Forbidden');
+    } else if (error.message === 'Network Error') {
+      console.error('Network Error - API may be unavailable');
     }
     return Promise.reject(error);
   }

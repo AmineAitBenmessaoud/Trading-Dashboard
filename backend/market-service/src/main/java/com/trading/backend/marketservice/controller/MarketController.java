@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/market")
+@RequestMapping("/market")
 @RequiredArgsConstructor
 public class MarketController {
 

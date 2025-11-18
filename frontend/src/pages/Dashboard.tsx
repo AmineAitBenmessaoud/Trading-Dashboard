@@ -17,15 +17,17 @@ export const Dashboard: React.FC = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        setError('');
         const [movers, wl] = await Promise.all([
           marketService.getTopMovers(),
           watchlistService.getWatchlist(),
         ]);
         setTopMovers(movers);
         setWatchlist(wl.items || []);
-      } catch (err) {
-        setError('Failed to load dashboard data');
-        console.error(err);
+      } catch (err: any) {
+        console.error('Dashboard data fetch error:', err);
+        const errorMsg = err.response?.data?.message || err.message || 'Failed to load dashboard data';
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }

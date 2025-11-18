@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/watchlist")
+@RequestMapping("/watchlist")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class WatchlistController {
