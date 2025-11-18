@@ -57,15 +57,15 @@ export const StockDetail: React.FC = () => {
         <div className="stock-stats">
           <div className="stat">
             <span className="label">High</span>
-            <span className="value">${marketData.high.toFixed(2)}</span>
+            <span className="value">${marketData.high !== undefined ? marketData.high.toFixed(2) : 'N/A'}</span>
           </div>
           <div className="stat">
             <span className="label">Low</span>
-            <span className="value">${marketData.low.toFixed(2)}</span>
+            <span className="value">${marketData.low !== undefined ? marketData.low.toFixed(2) : 'N/A'}</span>
           </div>
           <div className="stat">
             <span className="label">Volume</span>
-            <span className="value">{(marketData.volume / 1000000).toFixed(2)}M</span>
+            <span className="value">{marketData.volume !== undefined ? (marketData.volume / 1000000).toFixed(2) : 'N/A'}M</span>
           </div>
         </div>
       </div>

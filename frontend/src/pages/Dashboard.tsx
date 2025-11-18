@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { marketService, MarketData } from '../services/marketService';
 import { watchlistService, WatchlistItem } from '../services/watchlistService';
+import { TopMoversChart } from '../components/Charts';
 import '../styles/Dashboard.css';
 
 export const Dashboard: React.FC = () => {
@@ -201,7 +202,12 @@ export const Dashboard: React.FC = () => {
       </div>
 
       <div className="dashboard-section">
-        <h2>Top Movers</h2>
+        <h2>Top Movers - Market Overview</h2>
+        {topMovers.length > 0 && <TopMoversChart data={topMovers} />}
+      </div>
+
+      <div className="dashboard-section">
+        <h2>Top Movers - Cards View</h2>
         <div className="stocks-grid">
           {topMovers.slice(0, 6).map((stock) => (
             <div
