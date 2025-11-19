@@ -24,7 +24,6 @@ import jakarta.annotation.PostConstruct;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@SuppressWarnings("unchecked")
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class JwtContextFilter implements WebFilter {
 
@@ -36,7 +35,7 @@ public class JwtContextFilter implements WebFilter {
     }
 
     @Override
-    @SuppressWarnings("null")
+    @SuppressWarnings("unchecked")
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         log.info("JwtContextFilter processing request for path: {} with authHeader: {}", 
@@ -44,7 +43,7 @@ public class JwtContextFilter implements WebFilter {
         
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.info("No Bearer token in Authorization header for path: {}", exchange.getRequest().getPath());
-            return (Mono<Void>) (Mono<?>) chain.filter(exchange);
+            return (Mono<Void>) (Object) chain.filter(exchange);
         }
         
         String token = authHeader.substring(7);
@@ -52,7 +51,7 @@ public class JwtContextFilter implements WebFilter {
         try {
             if (!jwtUtil.validateToken(token)) {
                 log.info("JWT token validation failed for path: {}", exchange.getRequest().getPath());
-                return (Mono<Void>) (Mono<?>) chain.filter(exchange);
+                return (Mono<Void>) (Object) chain.filter(exchange);
             }
             
             String username = jwtUtil.extractUsername(token);
@@ -66,13 +65,11 @@ public class JwtContextFilter implements WebFilter {
             
             SecurityContext securityContext = new SecurityContextImpl(auth);
             
-            @SuppressWarnings("null")
-            Mono<Void> contextResult = chain.filter(exchange)
+            return chain.filter(exchange)
                 .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
-            return contextResult;
         } catch (Exception e) {
             log.warn("Exception during JWT processing: {}", e.getMessage());
-            return (Mono<Void>) (Mono<?>) chain.filter(exchange);
+            return (Mono<Void>) (Object) chain.filter(exchange);
         }
     }
 }

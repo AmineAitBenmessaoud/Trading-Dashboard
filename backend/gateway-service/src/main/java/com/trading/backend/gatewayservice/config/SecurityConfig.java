@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
 @Slf4j
 @Configuration
@@ -16,7 +15,6 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
-            .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
             .authorizeExchange(exchanges -> exchanges
                 .pathMatchers("/api/auth/**").permitAll()
                 .pathMatchers("/api/*/health").permitAll()  // Allow health endpoints from all services
@@ -28,8 +26,8 @@ public class SecurityConfig {
                 .pathMatchers("/actuator/**").permitAll()
                 .anyExchange().authenticated()
             )
-            .cors(cors -> cors.disable())
             .csrf(csrf -> csrf.disable());
+        // CORS is handled by CorsConfig bean
 
         return http.build();
     }

@@ -1,11 +1,10 @@
 package com.trading.backend.gatewayservice.filter;
 
-import com.trading.backend.gatewayservice.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -13,8 +12,6 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
-
-    private final JwtUtil jwtUtil;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -25,27 +22,23 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        HttpHeaders headers = exchange.getRequest().getHeaders();
-        String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            
-            if (jwtUtil.validateToken(token)) {
-                String username = jwtUtil.extractUsername(token);
+        // Extract username from security context (already validated by JwtContextFilter)
+        return ReactiveSecurityContextHolder.getContext()
+            .mapNotNull(securityContext -> securityContext.getAuthentication().getPrincipal())
+            .map(principal -> {
+                String username = principal.toString();
                 // Add username as a header for downstream services
                 ServerWebExchange modifiedExchange = exchange.mutate()
                     .request(r -> r.headers(h -> h.add("X-User-Name", username)))
                     .build();
-                return chain.filter(modifiedExchange);
-            }
-        }
-
-        return chain.filter(exchange);
+                return modifiedExchange;
+            })
+            .defaultIfEmpty(exchange)
+            .flatMap(chain::filter);
     }
 
     @Override
     public int getOrder() {
-        return -2;
+        return -1;
     }
 }
